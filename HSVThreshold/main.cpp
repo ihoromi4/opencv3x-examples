@@ -5,6 +5,9 @@
 using namespace std;
 using namespace cv;
 
+const int MIN_OBJECT_AREA = 20 * 20;
+const int MAX_OBJECT_AREA = 400 * 400;
+
 int H_MIN = 0;
 int H_MAX = 255;
 int S_MIN = 0;
@@ -26,12 +29,14 @@ void createTrackbars()
     createTrackbar("V_MAX", "trackbars", &V_MAX, V_MAX, on_trackbar);
 }
 
-void drawObject(int x, int y, Mat &frame)
+void drawObject(cv::Rect rect, Mat &frame)
 {
-    circle(frame, Point(x, y), 20, Scalar(0, 255, 0), 2);
+    //circle(frame, Point(x, y), 20, Scalar(0, 255, 0), 2);
+    //rectangle(frame, Rect(x-20, y-20, 40, 40), Scalar(0, 255, 0));
+    rectangle(frame, rect, Scalar(0, 255, 0));
 }
 
-void morphImage(Mat &thresh)
+void flattenImage(Mat &thresh)
 {
     Mat erodeElement = getStructuringElement(MORPH_RECT, Size(3, 3));
     Mat dilateElement = getStructuringElement(MORPH_RECT, Size(8, 8));
@@ -61,14 +66,16 @@ void trackObject(int &x, int &y, Mat threshold, Mat &frame)
 
     for (int index = 0; index >= 0; index = hierarchy[index][0]) {
         Moments moment = moments((cv::Mat)contours[index]);
-        double area = moment.m00;
+        double area = fabs(contourArea(contours[index])); //moment.m00;
 
-        if (area > 20*20 && area < 300*300) {
+        if (area > MIN_OBJECT_AREA && area < MAX_OBJECT_AREA) {
             x = moment.m10 / area;
             y = moment.m01 / area;
 
+            cv::Rect rect = boundingRect(contours[index]);
+
             // object founded
-            drawObject(x, y, frame);
+            drawObject(rect, frame);
 
             objects_number++;
         }
@@ -103,7 +110,8 @@ int main()
         cvtColor(frame, frame_HSV, COLOR_BGR2HSV);
         inRange(frame_HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), frame_threshold);
 
-        morphImage(frame_threshold);
+        // Сглаживаем изображение
+        flattenImage(frame_threshold);
 
         trackObject(x, y, frame_threshold, frame);
 
