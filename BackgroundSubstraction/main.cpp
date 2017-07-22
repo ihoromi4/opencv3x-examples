@@ -1,7 +1,7 @@
 #include <iostream>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <highgui.h>
-#include <cvaux.h>
+#include <opencv2/highgui.hpp>
+//#include <opencv2/imgproc.hpp>
+#include <opencv2/video/background_segm.hpp>
 
 using namespace std;
 using namespace cv;
@@ -18,6 +18,7 @@ int main()
 
     Mat frame;
     Mat fgMaskMOG2;
+    Mat fgMaskKNN;
     Mat background;
 
     VideoCapture capture(0);
@@ -25,10 +26,12 @@ int main()
         cerr << "Unable to open camera!" << endl;
     }
 
-    BackgroundSubtractorMOG2 bsMOG2;
+    Ptr<BackgroundSubtractor> pKNN = createBackgroundSubtractorKNN();
+    Ptr<BackgroundSubtractor> pMOG2 = createBackgroundSubtractorMOG2();
 
     namedWindow("frame", 1);
     namedWindow("mask MOG2", 1);
+    namedWindow("mask KNN", 1);
     namedWindow("background", 1);
 
     help();
@@ -37,13 +40,15 @@ int main()
         capture >> frame;
 
         if (calcBackground) {
-            bsMOG2.operator()(frame, fgMaskMOG2);
+            pMOG2->apply(frame, fgMaskMOG2);
+            pKNN->apply(frame, fgMaskKNN);
         }
 
-        bsMOG2.getBackgroundImage(background);
+        pMOG2->getBackgroundImage(background);
 
         imshow("frame", frame);
         imshow("mask MOG2", fgMaskMOG2);
+        imshow("mask KNN", fgMaskKNN);
         imshow("background", background);
 
         switch (waitKey(30)) {
