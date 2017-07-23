@@ -1,6 +1,6 @@
 #include <iostream>
-#include <opencv2/highgui/highgui.hpp>
-//#include <opencv2/tracking.hpp> // no contrib
+#include <opencv2/highgui.hpp>
+#include <opencv2/tracking.hpp> // need contrib
 
 using namespace std;
 using namespace cv;
@@ -9,7 +9,7 @@ int main()
 {
     cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
 
-    Rect roi;
+    Rect2d roi;
     Mat frame;
 
     VideoCapture capture(0);
@@ -18,10 +18,23 @@ int main()
         return -1;
     }
 
-    //Ptr<Tracker> tracker = Tracker::create("KCF");
+    Ptr<Tracker> tracker = Tracker::create("KCF");
+
+    capture >> frame;
+    roi = selectROI("tracker", frame);
+
+    if (roi.width == 0 || roi.height == 0) {
+        return 0;
+    }
+
+    tracker->init(frame, roi);
 
     while (1) {
         capture >> frame;
+
+        tracker->update(frame, roi);
+
+        rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
 
         imshow("frame", frame);
 
