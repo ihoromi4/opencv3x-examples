@@ -5,6 +5,10 @@
 using namespace std;
 using namespace cv;
 
+Scalar COLOR_RED = Scalar(0, 0, 255); // BGR
+Scalar COLOR_GREEN = Scalar(0, 255 ,0);
+
+
 int main()
 {
     cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
@@ -32,9 +36,11 @@ int main()
     while (1) {
         capture >> frame;
 
-        tracker->update(frame, roi);
-
-        rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
+        if (tracker->update(frame, roi)) {
+            rectangle(frame, roi, COLOR_GREEN, 2, 1);
+        } else {
+            rectangle(frame, roi, COLOR_RED, 2, 1);
+        }
 
         imshow("frame", frame);
 
