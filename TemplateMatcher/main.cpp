@@ -55,6 +55,8 @@ cv::Rect MatchingMethod(Mat frame, Mat templ)
 
 int main(int argc, char** argv)
 {
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     VideoCapture capture(0);
 
     Mat frame;

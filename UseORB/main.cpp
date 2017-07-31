@@ -1,14 +1,15 @@
 #include <iostream>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/video/video.hpp>
-#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/features2d.hpp>
 
 using namespace std;
 using namespace cv;
 
 int main()
 {
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     VideoCapture capture(0);
     if (!capture.isOpened()) {
         cerr << "Couldn't open default camera" << endl;
@@ -27,7 +28,7 @@ int main()
     int scoreType = ORB::HARRIS_SCORE;
     int patchSize = 31;
 
-    OrbFeatureDetector detector(
+    Ptr<FeatureDetector> detector = ORB::create(
             nfeatures,
             scaleFactor,
             nlevels,
@@ -38,12 +39,12 @@ int main()
             patchSize
     );
 
-    BFMatcher matcher(cv::NORM_HAMMING);
-    //Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
+    //BFMatcher matcher(cv::NORM_HAMMING);
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
 
     capture >> frameA;
-    detector.detect(frameA, keypointsA);
-    detector.compute(frameA, keypointsA, descriptorsA);
+    detector->detect(frameA, keypointsA);
+    detector->compute(frameA, keypointsA, descriptorsA);
 
     while(1) {
         frameA.copyTo(frameB);
@@ -56,16 +57,16 @@ int main()
         descriptorsA.copyTo(descriptorsB);
 
         // Находим ключевые точки (фичи)
-        detector.detect(frameA, keypointsA);
+        detector->detect(frameA, keypointsA);
         // Вычисляем дескрипторы
-        detector.compute(frameA, keypointsA, descriptorsA);
+        detector->compute(frameA, keypointsA, descriptorsA);
 
         cout << "Found keypoints: " << keypointsA.size() << endl;
 
         vector<DMatch> matches;
 
         if (!descriptorsA.empty() && !descriptorsB.empty()) {
-            matcher.match(descriptorsA, descriptorsB, matches);
+            matcher->match(descriptorsA, descriptorsB, matches);
         }
 
         vector<DMatch> best_matches;

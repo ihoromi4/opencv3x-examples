@@ -86,6 +86,8 @@ void trackObject(int &x, int &y, Mat threshold, Mat &frame)
 
 int main()
 {
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     VideoCapture cap(0);
     if (!cap.isOpened()) {
         cout << "Defaul camera is not opened" << endl;

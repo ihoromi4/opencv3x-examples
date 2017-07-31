@@ -1,7 +1,7 @@
 #include <iostream> 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 using namespace std;
 using namespace cv;
@@ -73,7 +73,9 @@ void searchForMovement(Mat thresholdImage, Mat &cameraFeed)
 }
 
 int main()
-{ 
+{
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     bool objectDetected = false;
     bool debugMode = false; // d
     bool trackingEnabled = false; // t
@@ -111,6 +113,7 @@ int main()
 
         //threshold intensity image at a given sensitivity value
         cv::threshold(differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+
         if (debugMode == true) {
             cv::imshow("Difference Image", differenceImage);
             cv::imshow("Threshold Image", thresholdImage);
@@ -123,6 +126,11 @@ int main()
         cv::blur(thresholdImage, thresholdImage, cv::Size(BLUR_SIZE, BLUR_SIZE));
         //threshold again to obtain binary image from blur output
         cv::threshold(thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, THRESH_BINARY);
+
+        // use morphology operation Erode
+        Mat element = getStructuringElement( MORPH_RECT, Size(7, 7));
+        cv::morphologyEx(thresholdImage, thresholdImage, CV_MOP_ERODE, element);
+
         if (debugMode == true) {
             imshow("Final Threshold Image",thresholdImage);
         } else {
@@ -134,43 +142,22 @@ int main()
             searchForMovement(thresholdImage, frame1);
         }
 
-        imshow("Frame1", frame1);
+        imshow("Frame", frame1);
 
         switch(waitKey(10)) {
-        case 27: //'esc' key has been pressed, exit program.
-            return 0;
-        case 116: //'t' has been pressed. this will toggle tracking
-            trackingEnabled = !trackingEnabled;
-            if (trackingEnabled == false) {
-                cout<<"Tracking disabled."<<endl;
-            } else {
-                cout<<"Tracking enabled."<<endl;
-            }
-            break;
-        case 100: //'d' has been pressed. this will debug mode
-            debugMode = !debugMode;
-            if (debugMode == false) {
-                cout<<"Debug mode disabled."<<endl;
-            } else {
-                cout<<"Debug mode enabled."<<endl;
-            }
-            break;
-        case 112: //'p' has been pressed. this will pause/resume the code.
-            pause = !pause;
-            if(pause == true) {
-                cout<<"Code paused, press 'p' again to resume"<<endl;
-            }
-            while (pause == true) {
-                switch (waitKey()) {
-                case 112: 
-                    pause = false;
-                    cout << "Code Resumed" << endl;
-                    break;
-                }
-            }
+            case 'q':
+                return 0;
+            case 't': //'t' has been pressed. this will toggle tracking
+                trackingEnabled = !trackingEnabled;
+                cout << "Tracking mode: " << trackingEnabled << endl;
+                break;
+            case 'd': //'d' has been pressed. this will debug mode
+                debugMode = !debugMode;
+                cout << "Debug mode: " << debugMode << endl;
+                break;
         }
     }
-    capture.release();
+
     return 0;
 }
 

@@ -45,6 +45,8 @@ void detectAndDisplay(Mat frame)
 
 int main()
 {
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     VideoCapture cam(0);
     Mat frame;
 

@@ -1,11 +1,16 @@
+#include <iostream>
+
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 
+using namespace std;
 using namespace cv;
 
 int main(int, char* [])
 {
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     // Создание видеопотока с камеры
     VideoCapture video(0);
     Mat frame, curr, prev, curr64f, prev64f, hann;

@@ -8,21 +8,31 @@ using namespace cv;
 
 int main()
 {
-    cout << "hello" << endl;
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
 
-    VideoCapture cap(0);
+    VideoCapture capture(0);
 
-    if (!cap.isOpened()) return -1;
+    if (!capture.isOpened()) {
+        return -1;
+    }
 
     Mat frame, edges;
+
     namedWindow("edges", 1);
-    for(;;) {
-        cap >> frame;
+
+    while(1) {
+        capture >> frame;
+
         cvtColor(frame, edges, COLOR_BGR2GRAY);
         GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
         Canny(edges, edges, 0, 30, 3);
+
         imshow("edges", edges);
-        if (waitKey(30) >= 0) break;
+
+        switch (waitKey(30)) {
+            case 'q':
+                return 0;
+        }
     }
 
     return 0;

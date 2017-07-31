@@ -1,9 +1,10 @@
-#include "opencv2/video/tracking.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-
 #include <iostream>
 #include <ctype.h>
+
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include <opencv2/video.hpp>
+//#include "opencv2/tracking.hpp"
 
 using namespace cv;
 using namespace std;
@@ -48,7 +49,9 @@ static void onMouse( int event, int x, int y, int, void* )
 
 int main( int argc, const char** argv )
 {
-    VideoCapture cap(0);
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
+    VideoCapture capture(0);
 
     Rect trackWindow;
 
@@ -56,7 +59,7 @@ int main( int argc, const char** argv )
     float hranges[] = {0,180};
     const float* phranges = hranges;
 
-    if(!cap.isOpened()) {
+    if(!capture.isOpened()) {
         cout << "***Could not initialize capturing...***" << endl;
         return -1;
     }
@@ -78,7 +81,7 @@ int main( int argc, const char** argv )
 
     while (1) {
         if(!paused) {
-            cap >> frame;
+            capture >> frame;
             if( frame.empty() )
                 break;
         }
@@ -139,8 +142,9 @@ int main( int argc, const char** argv )
                 }
                 ellipse( image, trackBox, Scalar(0,0,255), 3);
             }
-        } else if( trackObject < 0 )
+        } else if( trackObject < 0 ) {
             paused = false;
+        }
 
         if ( selectObject && selection.width > 0 && selection.height > 0 ) {
             Mat roi(image, selection);
@@ -150,30 +154,28 @@ int main( int argc, const char** argv )
         imshow( "CamShift Demo", image );
         imshow( "Histogram", histimg );
 
-        char c = (char)waitKey(10);
-        if( c == 27 )
-            break;
-        switch(c)
-        {
-        case 'b':
-            backprojMode = !backprojMode;
-            break;
-        case 'c':
-            trackObject = 0;
-            histimg = Scalar::all(0);
-            break;
-        case 'h':
-            showHist = !showHist;
-            if( !showHist )
-                destroyWindow( "Histogram" );
-            else
-                namedWindow( "Histogram", 1 );
-            break;
-        case 'p':
-            paused = !paused;
-            break;
-        default:
-            ;
+        switch(waitKey(30)) {
+            case 'q':
+                return 0;
+            case 'b':
+                backprojMode = !backprojMode;
+                break;
+            case 'c':
+                trackObject = 0;
+                histimg = Scalar::all(0);
+                break;
+            case 'h':
+                showHist = !showHist;
+                if( !showHist )
+                    destroyWindow( "Histogram" );
+                else
+                    namedWindow( "Histogram", 1 );
+                break;
+            case 'p':
+                paused = !paused;
+                break;
+            default:
+                ;
         }
     }
 

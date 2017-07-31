@@ -8,12 +8,13 @@ using namespace cv;
 
 void help()
 {
-    cout << "This program shows how to use background substraction methods provided by" << endl;
-    cout << "OpenCV" << endl;
+    cout << "This program shows how to use background substraction methods provided by" << "OpenCV" << endl;
 }
 
 int main()
 {
+    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
+
     bool calcBackground = 1;
 
     Mat frame;
