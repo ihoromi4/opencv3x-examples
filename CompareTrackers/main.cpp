@@ -10,11 +10,15 @@ Scalar COLOR_GREEN = Scalar(0, 255 ,0);
 
 void drawText(Mat &frame)
 {
-    putText(frame, "'m' - MIL Tracker", Point(10, 15), 1, 1, Scalar(0, 0, 255));
-    putText(frame, "'b' - BOOSTING Tracker", Point(10, 30), 1, 1, Scalar(0, 0, 255));
-    putText(frame, "'f' - MEDIANFLOW Tracker", Point(10, 45), 1, 1, Scalar(0, 0, 255));
-    putText(frame, "'t' - TLD Tracker", Point(10, 60), 1, 1, Scalar(0, 0, 255));
-    putText(frame, "'k' - KCF Tracker", Point(10, 75), 1, 1, Scalar(0, 0, 255));
+    int dx = 10;
+    int iy = 2;
+    int sy = 15;
+
+    putText(frame, "'m' - MIL Tracker", Point(dx, sy * iy++), 1, 1, Scalar(0, 0, 255));
+    putText(frame, "'b' - BOOSTING Tracker", Point(dx, sy * iy++), 1, 1, Scalar(0, 0, 255));
+    putText(frame, "'f' - MEDIANFLOW Tracker", Point(dx, sy * iy++), 1, 1, Scalar(0, 0, 255));
+    putText(frame, "'t' - TLD Tracker", Point(dx, sy * iy++), 1, 1, Scalar(0, 0, 255));
+    putText(frame, "'k' - KCF Tracker", Point(dx, sy * iy), 1, 1, Scalar(0, 0, 255));
 }
 
 void initTracker(string name, Ptr<Tracker> &tracker, Rect2d &roi, Mat &frame)
@@ -34,6 +38,10 @@ int main()
 {
     cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
 
+    int64 start_tick, end_tick;
+    double frame_time = 0;
+    int fps = 0;
+
     Rect2d roi;
     Mat frame;
 
@@ -46,6 +54,8 @@ int main()
     Ptr<Tracker> tracker;
 
     while (1) {
+        start_tick = cv::getTickCount();
+
         capture >> frame;
 
         switch (waitKey(20)) {
@@ -78,7 +88,13 @@ int main()
 
         drawText(frame);
 
+        putText(frame, "FPS: " + to_string(fps), Point(10, 15), 1, 1, Scalar(50, 50, 50));
+
         imshow("tracker", frame);
+
+        end_tick = cv::getTickCount();
+        frame_time = (double)(end_tick - start_tick) / cv::getTickFrequency();
+        fps = 1.0d / frame_time;
 
     }
 
