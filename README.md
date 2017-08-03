@@ -4,7 +4,7 @@ This repo may be helpful for a beginners
 
 ## Requirements:
 
-* OpenCV 3.2.0
+* OpenCV 3.1.0 - 3.2.0
 * cmake >= 2.8
 
 ## Examples:
@@ -16,10 +16,12 @@ This repo may be helpful for a beginners
 * Contourus
 * HSVThreshold
 * LoadModifySaveImage
+* OpticalFlowLKMethod
 * OpticalFlow
 * SequentialImages
 * ShowImage
 * TemplateMatcher
 * VideoCapture2Edges
 * UseORB
+* UseMultiTracker
 
