@@ -1,10 +1,13 @@
 #include <iostream>
+
 #include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
 #include <opencv2/video.hpp>
+#include <opencv2/bgsegm.hpp>
 
 using namespace std;
 using namespace cv;
+using namespace cv::bgsegm;
 
 void help()
 {
@@ -15,47 +18,84 @@ int main()
 {
     cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
 
-    bool calcBackground = 1;
+    int64 start_tick, end_tick;
+    double frame_time = 0;
+    double fps = 0;
+
+    bool showBackground = 1;
 
     Mat frame;
-    Mat fgMaskMOG2;
-    Mat fgMaskKNN;
+    Mat fgMask;
     Mat background;
 
     VideoCapture capture(0);
     if (!capture.isOpened()) {
         cerr << "Unable to open camera!" << endl;
+        return -1;
     }
 
-    Ptr<BackgroundSubtractor> pKNN = createBackgroundSubtractorKNN();
-    Ptr<BackgroundSubtractor> pMOG2 = createBackgroundSubtractorMOG2();
+    double cam_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+    double cam_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
+    cout << "Camera resolution: " << cam_width << " x " << cam_height << endl;
+
+    Ptr<BackgroundSubtractor> bgsubstractor = createBackgroundSubtractorMOG2();
 
     namedWindow("frame", 1);
-    namedWindow("mask MOG2", 1);
-    namedWindow("mask KNN", 1);
+    namedWindow("mask", 1);
     namedWindow("background", 1);
 
     help();
 
     while (1) {
+        start_tick = cv::getTickCount();
+
         capture >> frame;
 
-        if (calcBackground) {
-            pMOG2->apply(frame, fgMaskMOG2);
-            pKNN->apply(frame, fgMaskKNN);
+        bgsubstractor->apply(frame, fgMask);
+
+        if (showBackground) {
+            bgsubstractor->getBackgroundImage(background);
         }
 
-        pMOG2->getBackgroundImage(background);
+        putText(frame, "FPS: " + to_string(fps), Point(10, 15), 1, 1, Scalar(50, 50, 50));
 
         imshow("frame", frame);
-        imshow("mask MOG2", fgMaskMOG2);
-        imshow("mask KNN", fgMaskKNN);
-        imshow("background", background);
+        imshow("mask", fgMask);
 
-        switch (waitKey(30)) {
+        if (showBackground) {
+            imshow("background", background);
+        } else {
+            destroyWindow("background");
+        }
+
+        switch (waitKey(10)) {
             case 'q':
                 return 0;
+            case 'm':
+                cout << "Use MOG" << endl;
+                showBackground = 0;
+                bgsubstractor = createBackgroundSubtractorMOG();
+                break;
+            case 'g':
+                cout << "Use GMG" << endl;
+                showBackground = 0;
+                bgsubstractor = createBackgroundSubtractorGMG();
+                break;
+            case 'k':
+                cout << "Use KNN" << endl;
+                showBackground = 1;
+                bgsubstractor = createBackgroundSubtractorKNN();
+                break;
+            case 'o':
+                cout << "Use MOG2" << endl;
+                showBackground = 1;
+                bgsubstractor = createBackgroundSubtractorMOG2();
+                break;
         }
+
+        end_tick = cv::getTickCount();
+        frame_time = (double)(end_tick - start_tick) / cv::getTickFrequency();
+        fps = 1.0d / frame_time;
     }
 
     return 0;
