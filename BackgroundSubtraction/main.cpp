@@ -38,7 +38,7 @@ int main()
     double cam_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
     cout << "Camera resolution: " << cam_width << " x " << cam_height << endl;
 
-    Ptr<BackgroundSubtractor> bgsubstractor = createBackgroundSubtractorMOG2();
+    Ptr<BackgroundSubtractor> bgsubtractor = createBackgroundSubtractorMOG2();
 
     namedWindow("frame", 1);
     namedWindow("mask", 1);
@@ -51,10 +51,10 @@ int main()
 
         capture >> frame;
 
-        bgsubstractor->apply(frame, fgMask);
+        bgsubtractor->apply(frame, fgMask);
 
         if (showBackground) {
-            bgsubstractor->getBackgroundImage(background);
+            bgsubtractor->getBackgroundImage(background);
         }
 
         putText(frame, "FPS: " + to_string(fps), Point(10, 15), 1, 1, Scalar(50, 50, 50));
@@ -74,22 +74,22 @@ int main()
             case 'm':
                 cout << "Use MOG" << endl;
                 showBackground = 0;
-                bgsubstractor = createBackgroundSubtractorMOG();
+                bgsubtractor = createBackgroundSubtractorMOG();
                 break;
             case 'g':
                 cout << "Use GMG" << endl;
                 showBackground = 0;
-                bgsubstractor = createBackgroundSubtractorGMG();
+                bgsubtractor = createBackgroundSubtractorGMG();
                 break;
             case 'k':
                 cout << "Use KNN" << endl;
                 showBackground = 1;
-                bgsubstractor = createBackgroundSubtractorKNN();
+                bgsubtractor = createBackgroundSubtractorKNN();
                 break;
             case 'o':
                 cout << "Use MOG2" << endl;
                 showBackground = 1;
-                bgsubstractor = createBackgroundSubtractorMOG2();
+                bgsubtractor = createBackgroundSubtractorMOG2();
                 break;
         }
 

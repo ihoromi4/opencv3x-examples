@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_CXX_STANDARD 11)
-set(TARGET BackgroundSubstraction)
+set(TARGET BackgroundSubtraction)
 set(SOURCES main.cpp)
 
 project(${TARGET})
