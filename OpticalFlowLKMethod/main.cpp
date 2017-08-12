@@ -7,22 +7,22 @@
 using namespace cv;
 using namespace std;
 
-static void help()
-{
-    // print a welcome message, and the OpenCV version
-    cout << "\nThis is a demo of Lukas-Kanade optical flow lkdemo(),\n"
-            "Using OpenCV version " << CV_VERSION << endl;
-    cout << "\nIt uses camera by default, but you can provide a path to video as an argument.\n";
-    cout << "\nHot keys: \n"
-            "\tESC - quit the program\n"
-            "\tr - auto-initialize tracking\n"
-            "\tc - delete all the points\n"
-            "\tn - switch the \"night\" mode on/off\n"
-            "To add/remove a feature point click it\n" << endl;
-}
-
 Point2f point;
 bool addRemovePt = false;
+
+
+static void help()
+{
+    cout << "Example of Lukas-Kanade optical flow" << endl;
+    cout << "OpenCV version: " << CV_VERSION << endl;
+    cout << "It uses camera by default, but you can provide a path to video";
+    cout << "Hot keys:" << endl;
+    cout << "\tESC - quit the program" << endl;
+    cout << "\tr - auto-initialize tracking" << endl;
+    cout << "\tc - delete all the points" << endl;
+    cout << "\tn - switch the \"night\" mode on/off" << endl;
+}
+
 
 static void onMouse( int event, int x, int y, int /*flags*/, void* /*param*/ )
 {
@@ -33,28 +33,27 @@ static void onMouse( int event, int x, int y, int /*flags*/, void* /*param*/ )
     }
 }
 
+
 int main( int argc, char** argv )
 {
-    cout << "OpenCV version: " << CV_MAJOR_VERSION << "." << CV_MINOR_VERSION << endl;
-
     int64 start_tick, end_tick;
     double frame_time = 0;
     double fps = 0;
 
     VideoCapture cap;
-    TermCriteria termcrit(TermCriteria::COUNT|TermCriteria::EPS,20,0.03);
-    Size subPixWinSize(10,10), winSize(31,31);
+    TermCriteria termcrit(TermCriteria::COUNT | TermCriteria::EPS, 20, 0.03);
+    Size subPixWinSize(10, 10), winSize(31, 31);
 
     const int MAX_COUNT = 500;
     bool needToInit = false;
     bool nightMode = false;
 
     cv::CommandLineParser parser(argc, argv, "{@input||}{help h||}");
+
     string input = parser.get<string>("@input");
-    if (parser.has("help")) {
-        help();
-        return 0;
-    }
+
+    help();
+
     if (input.empty()) {
         cap.open(0);
     } else if (input.size() == 1 && isdigit(input[0])) {
@@ -64,12 +63,12 @@ int main( int argc, char** argv )
     }
 
     if (!cap.isOpened()) {
-        cout << "Could not initialize capturing...\n";
+        cout << "Could not initialize capturing..." << endl;
         return 0;
     }
 
-    namedWindow( "LK Demo", 1 );
-    setMouseCallback( "LK Demo", onMouse, 0 );
+    namedWindow("LK Demo", 1);
+    setMouseCallback("LK Demo", onMouse, 0);
 
     Mat gray, prevGray, image, frame;
     vector<Point2f> points[2];
